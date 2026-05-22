@@ -1,3 +1,5 @@
+import { enqueueRequest } from './offline-queue';
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 export interface Statement {
@@ -5,7 +7,7 @@ export interface Statement {
   statement_id: string;
   user_id: string;
   content: string;
-  association: string;
+  associations: string;
   created_at: string;
   updated_at: string;
 }
@@ -18,18 +20,24 @@ async function fetchWithAuth(url: string, userID: string, options: RequestInit =
     ...(options.headers as Record<string, string>),
   };
 
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers['Authorization'] = token;
+  if (userID) headers['userid'] = userID;
+
+  const fullUrl = `${API_BASE}${url}`;
+
+  // If offline and it's a write, queue it
+  if (!navigator.onLine && options.method && options.method !== 'GET') {
+    await enqueueRequest({
+      url: fullUrl,
+      method: options.method,
+      body: (options.body as string) ?? '',
+      headers,
+      createdAt: new Date().toISOString(),
+    });
+    throw new Error('You are offline. Your changes have been saved and will sync when you reconnect.');
   }
 
-  if (userID) {
-    headers['userid'] = userID;
-  }
-
-  const response = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers,
-  });
+  const response = await fetch(fullUrl, { ...options, headers });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
@@ -41,16 +49,16 @@ async function fetchWithAuth(url: string, userID: string, options: RequestInit =
 
 export const apiClient = {
   getStatements: (userID: string) =>
-    fetchWithAuth('/statements', userID),
+    fetchWithAuth('/statements/', userID),
 
   getStatement: (userID: string, id: string) =>
-  fetchWithAuth(`/statements/${id}`, userID),
+    fetchWithAuth(`/statements/${id}`, userID),
 
   searchStatements: (userID: string, query: string) =>
-    fetchWithAuth(`/statements/search?q=${encodeURIComponent(query)}`, userID),
+    fetchWithAuth(`/statements/findstatements?q=${encodeURIComponent(query)}`, userID),
 
   createStatement: (userID: string, data: { statement: string; association: string }) =>
-    fetchWithAuth('/statements', userID, {
+    fetchWithAuth('/statements/addstatement', userID, {
       method: 'POST',
       body: JSON.stringify({
         user_id: userID,
@@ -59,15 +67,14 @@ export const apiClient = {
       }),
     }),
 
-  // Placeholder — wire up when endpoints exist
   updateStatement: (userID: string, id: string, data: { statement: string; association: string }) =>
-    fetchWithAuth(`/statements/${id}`, userID, {
+    fetchWithAuth(`/statements/editstatement/${id}`, userID, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
 
   deleteStatement: (userID: string, id: string) =>
-    fetchWithAuth(`/statements/${id}`, userID, {
+    fetchWithAuth(`/statements/deletestatement/${id}`, userID, {
       method: 'DELETE',
     }),
 };

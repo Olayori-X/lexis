@@ -35,7 +35,7 @@ export default function StatementDetailPage() {
     if (found) {
       setStatement(found);
       setEditedContent(found.content);
-      setEditedAssociation(found.association);
+      setEditedAssociation(found.associations);
     } else {
       setError('Statement not found');
     }
@@ -53,7 +53,7 @@ export default function StatementDetailPage() {
       setStatement({
         ...statement!,
         content: editedContent,
-        association: editedAssociation,
+        associations: editedAssociation,
       });
       setIsEditing(false);
     } catch (err) {
@@ -155,7 +155,7 @@ export default function StatementDetailPage() {
                   onClick={() => {
                     setIsEditing(false);
                     setEditedContent(statement.content);
-                    setEditedAssociation(statement.association);
+                    setEditedAssociation(statement.associations);
                   }}
                   className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold h-10 border border-slate-700"
                 >
@@ -168,16 +168,16 @@ export default function StatementDetailPage() {
               <div className="mb-8">
                 <h1 className="text-4xl font-bold text-white mb-4">{statement.content}</h1>
 
-                {statement.association && (
+                {statement.associations && (
                   <div className="mt-6">
                     <h2 className="text-lg font-semibold text-white mb-4">Association</h2>
                     <div className="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3">
-                      <p className="text-slate-200">{statement.association}</p>
+                      <p className="text-slate-200">{statement.associations}</p>
                     </div>
                   </div>
                 )}
 
-                {!statement.association && (
+                {!statement.associations && (
                   <p className="text-slate-400">No association yet.</p>
                 )}
               </div>

@@ -58,35 +58,25 @@ export function StatementList({ statements, isLoading, onDelete }: StatementList
   return (
     <div className="space-y-3">
       {statements.map((statement) => (
-        <Link key={statement.id} href={`/dashboard/statement/${statement.id}`}>
+        <Link key={statement.statement_id} href={`/dashboard/statement/${statement.statement_id}`}>
           <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:border-blue-600 hover:bg-slate-700/50 transition-all cursor-pointer group">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <h3 className="text-white font-semibold text-lg group-hover:text-blue-400 transition-colors truncate">
-                  {statement.statement}
+                  {statement.content}
                 </h3>
-                {statement.associations && statement.associations.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {statement.associations.slice(0, 3).map((assoc, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-block px-2 py-1 bg-blue-600/20 text-blue-300 text-xs rounded-md border border-blue-600/30"
-                      >
-                        {assoc}
-                      </span>
-                    ))}
-                    {statement.associations.length > 3 && (
-                      <span className="inline-block px-2 py-1 text-slate-400 text-xs">
-                        +{statement.associations.length - 3} more
-                      </span>
-                    )}
+                {statement.associations && (
+                  <div className="mt-2">
+                    <span className="inline-block px-2 py-1 bg-blue-600/20 text-blue-300 text-xs rounded-md border border-blue-600/30">
+                      {statement.associations}
+                    </span>
                   </div>
                 )}
               </div>
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  onDelete(statement.id);
+                  onDelete(statement.statement_id);
                 }}
                 className="text-slate-400 hover:text-red-400 transition-colors flex-shrink-0"
               >

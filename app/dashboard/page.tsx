@@ -31,6 +31,8 @@ export default function DashboardPage() {
         setIsLoading(true);
         const data = await apiClient.getStatements(user.user_id);
         const list = data.statements ?? [];
+        console.log('Fetched statements:', list);
+        console.log('API response:', data);
         setStatements(list);
         setDisplayedStatements(list);
       } catch (error) {

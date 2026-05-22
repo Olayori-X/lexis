@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No user session found. Please sign up or log in again.');
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verifyotp`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.user_id, otp }),
