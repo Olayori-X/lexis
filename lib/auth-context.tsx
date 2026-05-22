@@ -121,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
+      console.log('Login response:', data);
 
       const loggedInUser: User = {
         user_id: data.user_id,
