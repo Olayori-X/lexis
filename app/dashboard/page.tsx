@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
 import { useStatements } from '@/lib/statements-context';
 import { apiClient } from '@/lib/api-client';
 import { DashboardHeader } from '@/components/dashboard-header';
 import { StatementList } from '@/components/statement-list';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -31,8 +33,6 @@ export default function DashboardPage() {
         setIsLoading(true);
         const data = await apiClient.getStatements(user.user_id);
         const list = data.statements ?? [];
-        console.log('Fetched statements:', list);
-        console.log('API response:', data);
         setStatements(list);
         setDisplayedStatements(list);
       } catch (error) {
@@ -79,7 +79,7 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="text-slate-400">Loading...</div>
+        <div className="text-slate-400 text-sm">Loading...</div>
       </div>
     );
   }
@@ -88,16 +88,31 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <DashboardHeader />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Your Statements</h1>
-          <p className="text-slate-400">Manage your statements and their associations</p>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-4 mb-6 sm:mb-8">
+          <div>
+            <h1 className="text-2xl sm:text-4xl font-bold text-white mb-1 sm:mb-2">
+              Your Statements
+            </h1>
+            <p className="text-slate-400 text-sm sm:text-base">
+              Manage your statements and their associations
+            </p>
+          </div>
+          <Link href="/dashboard/new" className="flex-shrink-0">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm h-9 px-3 sm:h-10 sm:px-4">
+              <span className="hidden sm:inline">New Statement</span>
+              <span className="sm:hidden">+ New</span>
+            </Button>
+          </Link>
         </div>
 
-        <div className="mb-8">
+        {/* Search */}
+        <div className="mb-6 sm:mb-8">
           <div className="relative">
             <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -114,10 +129,18 @@ export default function DashboardPage() {
               placeholder="Search statements..."
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-600"
+              className="pl-9 sm:pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-600 text-sm sm:text-base h-10 sm:h-11"
             />
           </div>
         </div>
+
+        {/* Statement count */}
+        {!isLoading && (
+          <p className="text-slate-500 text-xs sm:text-sm mb-4">
+            {displayedStatements.length} {displayedStatements.length === 1 ? 'statement' : 'statements'}
+            {searchQuery && ` for "${searchQuery}"`}
+          </p>
+        )}
 
         <StatementList
           statements={displayedStatements}
