@@ -1,5 +1,3 @@
-import { enqueueRequest } from './offline-queue';
-
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080').replace(/\/+$/, '');
 
 export interface Statement {
@@ -23,21 +21,7 @@ async function fetchWithAuth(url: string, userID: string, options: RequestInit =
   if (token) headers['Authorization'] = token;
   if (userID) headers['userid'] = userID;
 
-  const fullUrl = `${API_BASE}${url}`;
-
-  // If offline and it's a write, queue it
-  if (!navigator.onLine && options.method && options.method !== 'GET') {
-    await enqueueRequest({
-      url: fullUrl,
-      method: options.method,
-      body: (options.body as string) ?? '',
-      headers,
-      createdAt: new Date().toISOString(),
-    });
-    throw new Error('You are offline. Your changes have been saved and will sync when you reconnect.');
-  }
-
-  const response = await fetch(fullUrl, { ...options, headers });
+  const response = await fetch(`${API_BASE}${url}`, { ...options, headers });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
